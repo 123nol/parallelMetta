@@ -20,5 +20,5 @@
 ($mag (sqrt-math $mag-ish))
 ) ($mag)))
 
-l!(normalize ((1 2 3) (5 6 7 ) (9 10 11) ))
+!(normalize ((1 2 3) (5 6 7 ) (9 10 11) ))
 !(normalize-with-proof ((1 2 3) (5 6 7 ) (9 10 11)) )

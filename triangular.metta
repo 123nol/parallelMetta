@@ -32,14 +32,23 @@
 ;================================
 
 
-(= (triangle $sq-matrix) (let* (
+(= (triangle-left $sq-matrix) (let* (
   ($mag (size-atom $sq-matrix))
   ($indicies (generate 1 (+ $mag 1) 1))
   ($zipped (zip-lists $sq-matrix $indicies ()))
-  ;for left-tri
+  
    ($pro-rows (reverse (collapse (process-row-left (superpose $zipped) 1 $mag () )) ()))
-   ;for right-tri
-   ;($pro-rows (reverse (collapse (process-row-right (superpose $zipped) $mag)) ()))
+
+  )
+  $pro-rows
+  ))
+
+(= (triangle-right $sq-matrix) (let* (
+  ($mag (size-atom $sq-matrix))
+  ($indicies (generate 1 (+ $mag 1) 1))
+  ($zipped (zip-lists $sq-matrix $indicies ()))
+ 
+   ($pro-rows (reverse (collapse (process-row-right (superpose $zipped) $mag)) ()))
   )
   $pro-rows
   ))
@@ -48,13 +57,13 @@
 
 
 (= (process-row-left ($row $index) $cur $size $acc)
-;here if we want upper triangular we just convert the inequality to >=
+
 (if (<= $cur $index ) (let* (($el (car-atom $row)) ($tail (cdr-atom $row))) (process-row-left ($tail $index) (+ $cur 1) $size  (union-atom $acc ($el))))  (let* (($zeros (repeat 0 (- $size $index) ()))) (union-atom $acc $zeros)))
 
 )
 
 (= (process-row-right ($row $index) $size)
-;here if we want upper triangular we just convert the inequality to >=
+
  (let* (($start (- $size $index)) ($tail (get-row-above $row $size $start ())) ($zeros (repeat 0 (- $size $index) ())) ($new-row (union-atom $zeros $tail))) $new-row )  )
 ;(=(get-row-above $row $index $len $start $acc) (if (< $cur (- $len $index)) (let* ( ($el (index-atom $row $index))) (get-row-above ))))
 
@@ -62,4 +71,5 @@
 
 
 
-!(triangle ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25 )))
+!(triangle-left ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25 )))
+!(triangle-right ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25 )))
