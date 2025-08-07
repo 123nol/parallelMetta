@@ -43,15 +43,17 @@
   $pro-rows
   ))
 
-(= (triangle-right $sq-matrix) (let* (
-  ($mag (size-atom $sq-matrix))
-  ($indicies (generate 1 (+ $mag 1) 1))
-  ($zipped (zip-lists $sq-matrix $indicies ()))
- 
-   ($pro-rows (reverse (collapse (process-row-right (superpose $zipped) $mag)) ()))
+
+(= (triangle-right $sq-matrix)
+  (let* (
+    ($mag (size-atom $sq-matrix))
+    ($indicies (generate 1 (+ $mag 1) 1))
+    ($zipped (zip-lists $sq-matrix $indicies ()))
+    ($pro-rows (reverse (collapse (process-row-right (superpose $zipped) 1 $mag ())) ()))
   )
-  $pro-rows
-  ))
+    $pro-rows
+  )
+)
 
 (=(reverse $row $acc) (if (== $row ()) $acc (let $el (car-atom $row) (reverse (cdr-atom $row) (cons-atom $el $acc)) )) )
 
@@ -62,15 +64,24 @@
 
 )
 
-(= (process-row-right ($row $index) $size)
-
- (let* (($start (- $size $index)) ($tail (get-row-above $row $size $start ())) ($zeros (repeat 0 (- $size $index) ())) ($new-row (union-atom $zeros $tail))) $new-row )  )
+; For top triangular: keep elements from index-1 to end, pad with zeros on the left
+(= (process-row-right ($row $index) $cur $size $acc)
+  (if (< $cur $index)
+      (process-row-right ($row $index) (+ $cur 1) $size (union-atom $acc (0)))
+      (if (> $cur $size)
+          $acc
+          (let* (($el (car-atom $row)) ($tail (cdr-atom $row)))
+            (process-row-right ($tail $index) (+ $cur 1) $size (union-atom $acc ($el)))
+          )
+      )
+  )
+)
 ;(=(get-row-above $row $index $len $start $acc) (if (< $cur (- $len $index)) (let* ( ($el (index-atom $row $index))) (get-row-above ))))
 
 (=(get-row-above $row $len $start $acc) (if (>= $start $len) $acc (let* ( ($el (index-atom $row $start))) (get-row-above $row $len (+ $start 1) (union-atom $acc ($el))  ))))
 
 
 
-!(triangle-left ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25 )))
+!(triangle-left ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25)))
 
 !(triangle-right ((1 2 3 4 5) (5 6 7 8 9) (9 10 11 12 13) (15 16 17 18 19) (21 22 23 24 25 )))
