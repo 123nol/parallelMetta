@@ -26,15 +26,23 @@
 )
 
 ; Fast diagonal sum for A^k
+; (= (matmul-fast $mat $k)
+;    (let* (( $matk (matpow $mat $k) ))
+;        (let* (($magn (size-atom $mat)) ( $msum (get-diag-sum $matk) ) ($lsum (get-diag-sum-sub $matk) ))
+
+;            (if (== ((py-atom math.fmod) $magn 2) 0.0) (+ $msum $lsum) (let $cen (get-center $mat $magn) (- (+ $msum $lsum) $cen)) )
+;        )
+;    )
+; )
+
 (= (matmul-fast $mat $k)
    (let* (( $matk (matpow $mat $k) ))
-       (let* (($magn (size-atom $mat)) ( $msum (get-diag-sum $matk) ) ($lsum (get-diag-sum-sub $matk) ))
+       (let* ( ( $msum (get-diag-sum $matk) ) )
 
-           (if (== ((py-atom math.fmod) $magn 2) 0.0) (+ $msum $lsum) (let $cen (get-center $mat $magn) (- (+ $msum $lsum) $cen)) )
+        $msum
        )
    )
 )
-
 
 
 
@@ -66,7 +74,7 @@
 ;==========================
 
 
-(=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (let*  (($magn (size-atom $matric)) ($msum (get-diag-sum $matric)) ($lsum (get-diag-sum-sub $matric))) (if (== ((py-atom math.fmod) $magn 2) 0.0) (+ $msum $lsum) (let $cen (get-center $matric $magn) (- (+ $msum $lsum) $cen)) ) ) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
+(=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (let*  ( ($msum (get-diag-sum $matric)) ) $msum ) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
 
 ; (=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (get-diag-sum $matric) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
 
@@ -103,9 +111,9 @@
 
 ;!(reverse (collapse(get-col (superpose ((1 2 3) (4 5 6) (7 8 9))) 0)) ())
 
-!(matmul ((1 2 3) (4 5 6) (7 8 9)) 1 () )
+;!(matmul ((1 2 3) (4 5 6) (7 8 9)) 1 () )
 
-;!(matmul-fast ((1 2 3) (4 5 6) (7 8 9)) 1)
+!(matmul-fast ((1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5) (1 2 3 4 5)) 3)
 
 ;!(get-center ((1 2 3) (4 5 6) (7 8 9)) 3)
 
