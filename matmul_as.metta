@@ -1,3 +1,40 @@
+
+; Fast matrix exponentiation by squaring
+(= (matpow $mat $k)
+   (if (== $k 1)
+       $mat
+       (if (== ((py-atom math.fmod) $k 2) 0.0)
+           (let* (( $half (matpow $mat (/ $k 2)) ))
+               (matmul-raw $half $half)
+           )
+           (let* (( $half (matpow $mat (/ (- $k 1) 2)) ))
+               (matmul-raw $mat (matmul-raw $half $half))
+           )
+       )
+   )
+)
+
+; Raw matrix multiplication: returns the product matrix (not diagonal sum)
+(= (matmul-raw $mat1 $mat2)
+   (let* (
+       ($mag (size-atom $mat1))
+       ($transp (transpose $mat2 $mag 0 ()))
+       ($rows (reverse (collapse (handle-row (superpose $mat1) $transp)) ()))
+   ) $rows)
+)
+
+; Fast diagonal sum for A^k
+(= (matmul-fast $mat $k)
+   (let* (( $matk (matpow $mat $k) ))
+       (let* (( $msum (get-diag-sum $matk) ) ($lsum (get-diag-sum-sub $matk) ))
+           (+ $msum $lsum)
+       )
+   )
+)
+
+
+
+
 (=(generate-helper $start $end $step $acc)
 (if (>= $start $end) $acc (let $new (union-atom $acc ($start)) (generate-helper (+ $start $step) $end $step $new)))
 )
@@ -63,7 +100,9 @@
 
 ;!(reverse (collapse(get-col (superpose ((1 2 3) (4 5 6) (7 8 9))) 0)) ())
 
-!(matmul ((1 2 3) (4 5 6) (7 8 9)) 4 () )
+;!(matmul ((1 2 3) (4 5 6) (7 8 9)) 1 () )
+
+!(matmul-fast ((1 2 3) (4 5 6) (7 8 9)) 4)
 
 
 

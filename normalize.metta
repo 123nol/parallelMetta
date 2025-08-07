@@ -1,8 +1,5 @@
 (=(normalize $matrix) (collapse (handleRow (superpose $matrix))))
 
-
-
-
 (=(handleRow $row) (let* 
 (($mag-ish (foldl-atom $row 0 $acc $x (+ $acc (pow-math $x 2))))
 ($mag (sqrt-math $mag-ish))
@@ -14,9 +11,11 @@
 ;============================
 
 (=(normalize-with-proof $matrix) (let* (($norm-mat (collapse (handleRow (superpose $matrix)))) ($norm-mag  (mag-mat $norm-mat) )) (matric $norm-mat mag $norm-mag)  )   )
+
 (=(mag-mat $norm-mat) (collapse (calc-mag (superpose $norm-mat))))
 
-(=(calc-mag $row) (let* (($mag-ish (foldl-atom $row 0 $acc $x (+ $acc (pow-math $x 2))))
+(=(calc-mag $row) (let* (
+($mag-ish (foldl-atom $row 0 $acc $x (+ $acc (pow-math $x 2))))
 ($mag (sqrt-math $mag-ish))
 ) ($mag)))
 
