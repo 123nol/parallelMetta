@@ -14,6 +14,8 @@
    )
 )
 
+(=(get-center $matric $mag ) (let* ( ($ind (- (/ (+ 1 $mag) 2) 1)) ($midrow (index-atom $matric $ind)) ($midel (index-atom $midrow $ind))) $midel))
+
 ; Raw matrix multiplication: returns the product matrix (not diagonal sum)
 (= (matmul-raw $mat1 $mat2)
    (let* (
@@ -26,8 +28,9 @@
 ; Fast diagonal sum for A^k
 (= (matmul-fast $mat $k)
    (let* (( $matk (matpow $mat $k) ))
-       (let* (( $msum (get-diag-sum $matk) ) ($lsum (get-diag-sum-sub $matk) ))
-           (+ $msum $lsum)
+       (let* (($magn (size-atom $mat)) ( $msum (get-diag-sum $matk) ) ($lsum (get-diag-sum-sub $matk) ))
+
+           (if (== ((py-atom math.fmod) $magn 2) 0.0) (+ $msum $lsum) (let $cen (get-center $mat $magn) (- (+ $msum $lsum) $cen)) )
        )
    )
 )
@@ -63,7 +66,7 @@
 ;==========================
 
 
-(=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (let*  (($msum (get-diag-sum $matric)) ($lsum (get-diag-sum-sub $matric))) (+ $msum $lsum) ) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
+(=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (let*  (($magn (size-atom $matric)) ($msum (get-diag-sum $matric)) ($lsum (get-diag-sum-sub $matric))) (if (== ((py-atom math.fmod) $magn 2) 0.0) (+ $msum $lsum) (let $cen (get-center $matric $magn) (- (+ $msum $lsum) $cen)) ) ) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
 
 ; (=(matmul $matric $k $transposed) (if (== (- $k 1) 0) (get-diag-sum $matric) (let* (($mag (size-atom $matric)) ($transp (if (== $transposed ()) (transpose $matric $mag 0 ()) $transposed)) ($new_matric   (handle-matric $matric $mag $transp))) (matmul $new_matric (- $k 1) $transp))))
 
@@ -100,9 +103,11 @@
 
 ;!(reverse (collapse(get-col (superpose ((1 2 3) (4 5 6) (7 8 9))) 0)) ())
 
-;!(matmul ((1 2 3) (4 5 6) (7 8 9)) 1 () )
+!(matmul ((1 2 3) (4 5 6) (7 8 9)) 1 () )
 
-!(matmul-fast ((1 2 3) (4 5 6) (7 8 9)) 4)
+;!(matmul-fast ((1 2 3) (4 5 6) (7 8 9)) 1)
+
+;!(get-center ((1 2 3) (4 5 6) (7 8 9)) 3)
 
 
 
